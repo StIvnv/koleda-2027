@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="bg" class="play">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Весела Коледа от катедра „Железопътна техника“</title>
+<meta name="description" content="Коледен поздрав от катедра „Железопътна техника“, Технически университет – София.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=Manrope:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  color-scheme: dark;
+  --green:#0B3D2E;
+  --red:#9A2226;
+  --gold:#C9A961;
+  --gold-dim:rgba(201,169,97,.45);
+  --ivory:#F4EFE4;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  background:var(--green);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){ --green:#0B3D2E; --red:#9A2226; --gold:#C9A961; --ivory:#F4EFE4; }
+}
+:root[data-theme="dark"]{ --green:#0B3D2E; --red:#9A2226; --gold:#C9A961; --ivory:#F4EFE4; }
+
+html{ height:100%; scroll-padding-top:env(safe-area-inset-top,0px); scroll-behavior:smooth; }
+body{
+  margin:0; height:100%;
+  background:var(--green); color:var(--ivory);
+  font-family:Manrope,"Segoe UI",Roboto,Arial,sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+.serif{ font-family:"Cormorant Garamond",Georgia,"Times New Roman",serif; font-weight:600; }
+
+/* ---------- първи екран: картичката ---------- */
+.card{ min-height:100%; display:flex; flex-direction:column; }
+
+.sky{
+  flex:1 1 0; min-height:300px;
+  position:relative; overflow:hidden;
+  display:flex; align-items:flex-end; justify-content:center;
+}
+.snow{ position:absolute; inset:0; pointer-events:none; }
+.flake{
+  position:absolute; top:-12px; border-radius:50%;
+  background:var(--ivory); opacity:0;
+  animation:fall var(--t) linear var(--d) infinite;
+}
+.tree{ width:min(58%,240px); height:auto; display:block; position:relative; z-index:1; }
+.tree rect, .tree path{ fill:var(--gold); }
+.tree circle{ fill:var(--red); }
+.star, .berry{ transform-box:fill-box; transform-origin:center; }
+.trunk{ transform-box:fill-box; transform-origin:50% 100%; }
+
+.replay{
+  position:absolute; top:16px; right:16px; z-index:2;
+  min-height:44px; padding:10px 16px;
+  display:inline-flex; align-items:center; gap:8px;
+  background:transparent; color:var(--ivory);
+  border:1px solid var(--gold-dim); border-radius:999px;
+  font:600 13px/1 Manrope,"Segoe UI",Roboto,Arial,sans-serif; letter-spacing:.04em;
+  cursor:pointer;
+}
+.replay:hover{ border-color:var(--gold); }
+.replay:focus-visible{ outline:2px solid var(--gold); outline-offset:3px; }
+.replay svg{ width:16px; height:16px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+
+/* релсите — границата между зеленото и червеното */
+.rails{
+  position:relative; flex:0 0 18px; height:18px;
+  background:linear-gradient(var(--green) 50%, var(--red) 50%);
+}
+.rails.flip{ background:linear-gradient(var(--red) 50%, var(--green) 50%); }
+.rails::before{
+  content:""; position:absolute; inset:1px 0;
+  background:repeating-linear-gradient(to right, transparent 0 6px, var(--gold-dim) 6px 8px, transparent 8px 14px);
+  transform-origin:left;
+}
+.rails::after{
+  content:""; position:absolute; left:0; right:0; top:4px; height:1.5px;
+  background:var(--gold); box-shadow:0 8.5px 0 0 var(--gold);
+  transform-origin:left;
+}
+
+.band{
+  position:relative;
+  background:var(--red);
+  padding:30px 24px 92px;
+  display:flex; flex-direction:column; align-items:center; text-align:center;
+}
+.band > *{ max-width:640px; }
+h1{ margin:0; font-size:clamp(40px,11vw,64px); line-height:1.05; letter-spacing:.01em; }
+.sub{ margin:6px 0 0; font-size:18px; letter-spacing:.02em; }
+.year{
+  margin:16px 0 0; display:flex;
+  font-size:clamp(96px,30vw,168px); line-height:.9; letter-spacing:.02em;
+  font-variant-numeric:lining-nums; color:var(--gold);
+}
+.year span{ display:inline-block; }
+.rule{ width:40px; height:1px; border:0; background:var(--gold); margin:24px 0 14px; transform-origin:center; }
+.dept{ margin:0; font-size:13px; letter-spacing:.16em; text-transform:uppercase; font-weight:600; }
+.org{ margin:8px 0 0; font-size:14px; line-height:1.45; opacity:.85; }
+
+.hint{
+  position:absolute; left:50%; bottom:22px; transform:translateX(-50%);
+  display:inline-flex; flex-direction:column; align-items:center; gap:6px;
+  min-height:44px; padding:6px 12px;
+  color:var(--gold); text-decoration:none; font-size:13px; letter-spacing:.04em; white-space:nowrap;
+}
+.hint svg{ width:18px; height:18px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+.hint:hover{ color:var(--ivory); }
+.hint:focus-visible{ outline:2px solid var(--gold); outline-offset:3px; border-radius:6px; }
+
+/* ---------- при скролване: пожеланията ---------- */
+.wrap{ max-width:560px; margin:0 auto; }
+.wishes{ background:var(--green); padding:72px 24px 56px; }
+h2{ margin:0; font-size:clamp(34px,8vw,48px); line-height:1.1; }
+.lead{ margin:10px 0 44px; font-size:16px; line-height:1.5; opacity:.85; }
+
+.route{ list-style:none; margin:0; padding:0 0 8px 44px; position:relative; }
+.route::before{
+  content:""; position:absolute; left:8px; top:0; bottom:0; width:16px;
+  background:repeating-linear-gradient(to bottom, transparent 0 6px, var(--gold-dim) 6px 8px, transparent 8px 14px);
+}
+.route .line{
+  position:absolute; left:12px; top:0; bottom:0; width:1.5px;
+  background:var(--gold); box-shadow:8.5px 0 0 0 var(--gold);
+  transform-origin:top; transform:scaleY(var(--p,0));
+}
+.stop{ position:relative; margin:0 0 44px; opacity:0; transform:translateY(22px); transition:opacity .7s ease, transform .7s ease; }
+.stop:last-child{ margin-bottom:0; }
+.stop.in{ opacity:1; transform:none; }
+.dot{
+  position:absolute; left:-37px; top:9px; width:14px; height:14px; border-radius:50%;
+  background:var(--red); border:2px solid var(--gold); box-sizing:content-box;
+  transform:scale(0); transition:transform .45s cubic-bezier(.3,1.4,.5,1) .25s;
+}
+.stop.in .dot{ transform:scale(1); }
+.stop h3{ margin:0; font-size:30px; line-height:1.1; color:var(--gold); }
+.stop p{ margin:8px 0 0; font-size:17px; line-height:1.55; }
+
+/* ---------- финал ---------- */
+.closing{ background:var(--red); padding:56px 24px 64px; text-align:center; }
+.sign-lead{ margin:0; font-size:17px; opacity:.9; }
+.sign{ margin:6px 0 0; font-size:clamp(30px,7vw,40px); line-height:1.15; }
+.org2{ margin:10px 0 0; font-size:14px; line-height:1.45; opacity:.85; }
+.actions{ margin:32px 0 0; display:flex; flex-wrap:wrap; justify-content:center; gap:12px; }
+.btn{
+  min-height:44px; padding:12px 20px; box-sizing:border-box;
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  border-radius:999px; border:1px solid var(--gold); background:transparent; color:var(--ivory);
+  font:600 14px/1 Manrope,"Segoe UI",Roboto,Arial,sans-serif; letter-spacing:.02em;
+  text-decoration:none; cursor:pointer;
+}
+.btn.share{ background:var(--gold); color:var(--green); }
+.btn:hover{ filter:brightness(1.08); }
+.btn:focus-visible{ outline:2px solid var(--ivory); outline-offset:3px; }
+.btn svg{ width:16px; height:16px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+
+/* ---------- последователността при зареждане ---------- */
+@keyframes draw{ from{ transform:scaleX(0); } to{ transform:scaleX(1); } }
+@keyframes rise{ from{ transform:scaleY(0); } to{ transform:scaleY(1); } }
+@keyframes slideL{ from{ opacity:0; transform:translateX(-36px); } to{ opacity:1; transform:none; } }
+@keyframes slideR{ from{ opacity:0; transform:translateX(36px); } to{ opacity:1; transform:none; } }
+@keyframes pop{ 0%{ opacity:0; transform:scale(0); } 70%{ opacity:1; transform:scale(1.3); } 100%{ opacity:1; transform:scale(1); } }
+@keyframes twinkle{ 0%{ opacity:0; transform:scale(0) rotate(-40deg); } 60%{ opacity:1; transform:scale(1.35) rotate(10deg); } 100%{ opacity:1; transform:scale(1) rotate(0deg); } }
+@keyframes up{ from{ opacity:0; transform:translateY(14px); } to{ opacity:1; transform:none; } }
+@keyframes digit{ from{ opacity:0; transform:translateY(44px); } to{ opacity:1; transform:none; } }
+@keyframes fade{ from{ opacity:0; } to{ opacity:1; } }
+@keyframes fadeX{ from{ opacity:0; transform:translateX(-50%) translateY(8px); } to{ opacity:1; transform:translateX(-50%); } }
+@keyframes bob{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(5px); } }
+@keyframes fall{
+  0%{ opacity:0; transform:translate3d(0,0,0); }
+  10%{ opacity:.55; }
+  85%{ opacity:.55; }
+  100%{ opacity:0; transform:translate3d(var(--sway),var(--h),0); }
+}
+
+.play .rails.intro::before, .play .rails.intro::after{ animation:draw .9s cubic-bezier(.2,.7,.2,1) .1s both; }
+.play .trunk{ animation:rise .4s ease-out .95s both; }
+.play .bar{ animation:slideL .5s cubic-bezier(.2,.7,.2,1) var(--d) both; }
+.play .bar.r{ animation-name:slideR; }
+.play .star{ animation:twinkle .6s cubic-bezier(.3,1.4,.5,1) 1.95s both; }
+.play .berry{ animation:pop .4s cubic-bezier(.3,1.4,.5,1) var(--d) both; }
+.play h1{ animation:up .7s ease-out 2.6s both; }
+.play .sub{ animation:up .7s ease-out 2.8s both; }
+.play .year span{ animation:digit .6s cubic-bezier(.2,.7,.2,1) var(--d) both; }
+.play .rule{ animation:draw .5s ease-out 3.6s both; }
+.play .dept{ animation:up .6s ease-out 3.7s both; }
+.play .org{ animation:up .6s ease-out 3.85s both; }
+.play .replay{ animation:fade .6s ease-out 4.3s both; }
+.play .hint{ animation:fadeX .6s ease-out 4.4s both; }
+.play .hint svg{ animation:bob 1.6s ease-in-out 5s infinite; }
+
+@media (prefers-reduced-motion: reduce){
+  html{ scroll-behavior:auto; }
+  .play *, .play *::before, .play *::after{ animation:none !important; }
+  .snow{ display:none; }
+  .stop, .stop .dot{ opacity:1; transform:none; transition:none; }
+  .route .line{ transform:none; }
+}
+@media (min-width: 720px){
+  .band{ padding:40px 32px 100px; }
+  .sky{ min-height:360px; }
+  .wishes{ padding:96px 32px 72px; }
+  .closing{ padding:72px 32px 80px; }
+}
+</style>
+</head>
+<body>
+<main class="card" id="top">
+  <section class="sky">
+    <div class="snow" aria-hidden="true"></div>
+    <button class="replay" type="button" aria-label="Пусни анимацията отново">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"></path><path d="M3 4v5h5"></path></svg>
+      Отново
+    </button>
+    <svg class="tree" viewBox="0 0 200 168" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+      <path class="star" d="M100 2 L103.4 12.6 L114 16 L103.4 19.4 L100 30 L96.6 19.4 L86 16 L96.6 12.6 Z"></path>
+      <rect class="bar" style="--d:1.72s" x="87" y="40" width="26" height="6" rx="3"></rect>
+      <rect class="bar r" style="--d:1.6s" x="74" y="57" width="52" height="6" rx="3"></rect>
+      <rect class="bar" style="--d:1.48s" x="61" y="74" width="78" height="6" rx="3"></rect>
+      <rect class="bar r" style="--d:1.36s" x="48" y="91" width="104" height="6" rx="3"></rect>
+      <rect class="bar" style="--d:1.24s" x="35" y="108" width="130" height="6" rx="3"></rect>
+      <rect class="bar r" style="--d:1.12s" x="22" y="125" width="156" height="6" rx="3"></rect>
+      <rect class="bar" style="--d:1s" x="9" y="142" width="182" height="6" rx="3"></rect>
+      <circle class="berry" style="--d:2.2s" cx="139" cy="77" r="4.5"></circle>
+      <circle class="berry" style="--d:2.3s" cx="35" cy="111" r="4.5"></circle>
+      <circle class="berry" style="--d:2.4s" cx="191" cy="145" r="4.5"></circle>
+      <rect class="trunk" x="96.5" y="152" width="7" height="16" rx="2"></rect>
+    </svg>
+  </section>
+
+  <div class="rails intro" aria-hidden="true"></div>
+
+  <section class="band">
+    <h1 class="serif">Весела Коледа</h1>
+    <p class="sub">и щастлива Нова година</p>
+    <p class="year serif" aria-label="2027"><span style="--d:3s" aria-hidden="true">2</span><span style="--d:3.1s" aria-hidden="true">0</span><span style="--d:3.2s" aria-hidden="true">2</span><span style="--d:3.3s" aria-hidden="true">7</span></p>
+    <hr class="rule" aria-hidden="true">
+    <p class="dept">Катедра „Железопътна техника“</p>
+    <p class="org">Факултет по транспорта, Технически университет – София</p>
+    <a class="hint" href="#pozhelania">Пожеланията ни
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg>
+    </a>
+  </section>
+</main>
+
+<section class="wishes" id="pozhelania">
+  <div class="wrap">
+    <h2 class="serif">Пет спирки през 2027</h2>
+    <p class="lead">Пожеланията ни за новата година, подредени по маршрута ѝ.</p>
+    <ol class="route">
+      <span class="line" aria-hidden="true"></span>
+      <li class="stop">
+        <span class="dot" aria-hidden="true"></span>
+        <h3 class="serif">Здраве</h3>
+        <p>Най-напред здраве — за вас и за хората до вас. Всичко останало се подрежда след него.</p>
+      </li>
+      <li class="stop">
+        <span class="dot" aria-hidden="true"></span>
+        <h3 class="serif">Спокойствие</h3>
+        <p>Пътувания без закъснения, срещи без бързане и вечери, в които телефонът остава настрана.</p>
+      </li>
+      <li class="stop">
+        <span class="dot" aria-hidden="true"></span>
+        <h3 class="serif">Нови посоки</h3>
+        <p>Идеи, които да ви увлекат, проекти, които да доведете докрай, и признание за свършената работа.</p>
+      </li>
+      <li class="stop">
+        <span class="dot" aria-hidden="true"></span>
+        <h3 class="serif">Добра компания</h3>
+        <p>Колеги, с които работата е лека, и приятели, с които времето минава неусетно.</p>
+      </li>
+      <li class="stop">
+        <span class="dot" aria-hidden="true"></span>
+        <h3 class="serif">Нови гари</h3>
+        <p>Да стигнем заедно до места, за които днес само мечтаем. Влакът за 2027 вече тръгва.</p>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<div class="rails" aria-hidden="true"></div>
+
+<section class="closing">
+  <div class="wrap">
+    <p class="sign-lead">С топли пожелания,</p>
+    <p class="sign serif">екипът на катедра „Железопътна техника“</p>
+    <p class="org2">Факултет по транспорта, Технически университет – София</p>
+    <div class="actions">
+      <button class="btn share" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"></path><path d="M16 6l-4-4-4 4"></path><path d="M12 2v13"></path></svg>
+        <span>Споделете картичката</span>
+      </button>
+      <a class="btn" href="#top">Към началото</a>
+    </div>
+  </div>
+</section>
+
+<script>
+(function(){
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* сняг */
+  var sky = document.querySelector('.sky');
+  var snow = document.querySelector('.snow');
+  for (var i = 0; i < 26; i++) {
+    var f = document.createElement('span');
+    f.className = 'flake';
+    var s = 2 + Math.random() * 4;
+    f.style.width = s + 'px';
+    f.style.height = s + 'px';
+    f.style.left = (Math.random() * 100) + '%';
+    f.style.setProperty('--t', (7 + Math.random() * 7) + 's');
+    f.style.setProperty('--d', (-Math.random() * 14) + 's');
+    f.style.setProperty('--sway', ((Math.random() - 0.5) * 60) + 'px');
+    snow.appendChild(f);
+  }
+  function size(){ snow.style.setProperty('--h', (sky.clientHeight + 24) + 'px'); }
+  size();
+  window.addEventListener('resize', size);
+
+  /* повторно пускане на картичката */
+  var root = document.documentElement;
+  document.querySelector('.replay').addEventListener('click', function(){
+    root.classList.remove('play');
+    void root.offsetWidth;
+    root.classList.add('play');
+  });
+
+  /* плавно скролване към котвите */
+  function go(sel){
+    var el = document.querySelector(sel);
+    if (el) el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+  }
+  document.querySelector('.hint').addEventListener('click', function(e){ e.preventDefault(); go('#pozhelania'); });
+  document.querySelector('.btn[href="#top"]').addEventListener('click', function(e){ e.preventDefault(); go('#top'); });
+
+  /* спирките се появяват при скролване */
+  var stops = document.querySelectorAll('.stop');
+  if ('IntersectionObserver' in window && !reduce) {
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); }
+      });
+    }, { threshold: 0.35 });
+    stops.forEach(function(st){ io.observe(st); });
+  } else {
+    stops.forEach(function(st){ st.classList.add('in'); });
+  }
+
+  /* релсите по маршрута се „полагат“ с напредването на скрола */
+  var route = document.querySelector('.route');
+  function progress(){
+    var r = route.getBoundingClientRect();
+    var p = (window.innerHeight * 0.72 - r.top) / r.height;
+    route.style.setProperty('--p', Math.max(0, Math.min(1, p)));
+  }
+  if (!reduce) {
+    progress();
+    window.addEventListener('scroll', progress, { passive: true });
+    window.addEventListener('resize', progress);
+  }
+
+  /* споделяне */
+  var share = document.querySelector('.btn.share');
+  var label = share.querySelector('span');
+  share.addEventListener('click', function(){
+    var data = { title: document.title, text: 'Весела Коледа от катедра „Железопътна техника“', url: location.href };
+    if (navigator.share) {
+      navigator.share(data).catch(function(){});
+    } else if (navigator.clipboard) {
+      navigator.clipboard.writeText(location.href).then(function(){
+        label.textContent = 'Връзката е копирана';
+        setTimeout(function(){ label.textContent = 'Споделете картичката'; }, 2500);
+      }).catch(function(){});
+    }
+  });
+})();
+</script>
+</body>
+</html>
